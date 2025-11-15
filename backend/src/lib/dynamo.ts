@@ -5,7 +5,7 @@ import {
   GetCommand,
   PutCommand
 } from "@aws-sdk/lib-dynamodb";
-import { ENV } from "../config/env.js";
+import { ENV } from "../config/env";
 
 const client = new DynamoDBClient({
   region: ENV.region,

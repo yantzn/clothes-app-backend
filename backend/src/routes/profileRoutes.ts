@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { handler } from "../handlers/saveProfile.js";
-import { lambdaAdapter } from "../local/lambdaAdapter.js";
-
+import { handler } from "../handlers/saveProfile";
+import { lambdaAdapter } from "../local/lambdaAdapter";
 const router = Router();
 
 const dummyContext = {

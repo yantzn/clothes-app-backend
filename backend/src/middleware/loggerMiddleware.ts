@@ -1,6 +1,6 @@
 // middleware/loggerMiddleware.ts
 import pinoHttp from "pino-http";
-import { logger } from "../lib/logger.js";
+import { logger } from "../lib/logger";
 
 export const loggerMiddleware = pinoHttp({
   logger,

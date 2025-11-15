@@ -5,9 +5,9 @@ import type {
   Context
 } from "aws-lambda";
 
-import { getUserProfile } from "../services/profileService.js";
-import { fetchWeather } from "../services/weatherService.js";
-import { lambdaLogger } from "../lib/lambdaLogger.js";
+import { getUserProfile } from "../services/profileService";
+import { fetchWeather } from "../services/weatherService";
+import { lambdaLogger } from "../lib/lambdaLogger";
 
 export const handler = async (
   event: APIGatewayProxyEventV2,

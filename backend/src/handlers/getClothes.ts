@@ -5,8 +5,8 @@ import type {
   Context
 } from "aws-lambda";
 
-import { getClothesSuggestion } from "../services/clothesService.js";
-import { lambdaLogger } from "../lib/lambdaLogger.js";
+import { getClothesSuggestion } from "../services/clothesService";
+import { lambdaLogger } from "../lib/lambdaLogger";
 
 const safeParse = (body: string | undefined | null): any => {
   if (!body) return {};

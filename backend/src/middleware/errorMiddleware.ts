@@ -1,5 +1,5 @@
 // ...existing code...
-import { logger } from "../lib/logger.js";
+import { logger } from "../lib/logger";
 
 export function errorMiddleware(
   err: any,

@@ -1,6 +1,6 @@
 // lib/logger.ts
 import pino from "pino";
-import { ENV } from "../config/env.js";
+import { ENV } from "../config/env";
 
 export const logger = pino(
   ENV.isLocal

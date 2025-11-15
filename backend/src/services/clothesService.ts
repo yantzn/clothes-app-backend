@@ -1,5 +1,5 @@
-import { getUserProfile } from "./profileService.js";
-import { calculateAge, ageGroup } from "../lib/age.js";
+import { getUserProfile } from "./profileService";
+import { calculateAge, ageGroup } from "../lib/age";
 
 export const getClothesSuggestion = async (userId: string, feelsLike: number) => {
   const profile = await getUserProfile(userId);

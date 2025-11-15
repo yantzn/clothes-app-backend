@@ -1,4 +1,4 @@
-import { getWeather } from "../lib/openweather.js";
+import { getWeather } from "../lib/openweather";
 
 // 天気データ取得サービス
 export const fetchWeather = async (lat: number, lon: number) => {

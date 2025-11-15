@@ -1,7 +1,7 @@
 // routes/clothesRoutes.ts
 import { Router } from "express";
-import { handler } from "../handlers/getClothes.js";
-import { lambdaAdapter } from "../local/lambdaAdapter.js";
+import { handler } from "../handlers/getClothes";
+import { lambdaAdapter } from "../local/lambdaAdapter";
 
 const router = Router();
 

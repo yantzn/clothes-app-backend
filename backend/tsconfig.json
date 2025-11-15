@@ -26,7 +26,10 @@
     "strict": true,
 
     // --- ソースマップ出力（ローカルデバッグ用） ---
-    "sourceMap": true
+    "sourceMap": true,
+
+     // TSX や .js 拡張子を import で使いたいなら false に
+    "allowImportingTsExtensions": false
   },
 
   // --- コンパイル対象 ---
