@@ -1,0 +1,34 @@
+{
+  // === TypeScript コンパイル設定 ===
+  "compilerOptions": {
+
+    // --- 実行環境（Node.js 22）の対応バージョン ---
+    // Node.js 22 は ES2022 を完全サポートしているため最適
+    "target": "ES2022",
+
+    // --- モジュール形式（重要：Node.js 22 は ESM を推奨） ---
+    // 最新ランタイムでは CommonJS ではなく ES Modules が推奨
+    "module": "ES2022",
+
+    // --- モジュール解決ロジック ---
+    // TS6〜TS7 の最新推奨は "bundler"
+    // Node.js の ESM 仕様に完全対応し、今後 deprecated にならない
+    "moduleResolution": "bundler",
+
+    // --- 出力ディレクトリ ---
+    // Lambda にデプロイする dist 配下に JS を出力
+    "outDir": "./dist",
+
+    // --- import/export をより柔軟に扱えるようにする ---
+    "esModuleInterop": true,
+
+    // --- 型安全性を最大化（バグ防止） ---
+    "strict": true,
+
+    // --- ソースマップ出力（ローカルデバッグ用） ---
+    "sourceMap": true
+  },
+
+  // --- コンパイル対象 ---
+  "include": ["src/**/*.ts"]
+}

@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: Clothing Recommendation API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000  # 後でAPI Gatewayローカルやモックに合わせる
+
+paths:
+  /profile:
+    post:
+      summary: Save user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                region:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                notificationsEnabled:
+                  type: boolean
+      responses:
+        "200":
+          description: ok
+
+  /weather:
+    get:
+      summary: Get weather
+      parameters:
+        - name: userId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+
+  /clothes:
+    post:
+      summary: Get clothing suggestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                feels_like:
+                  type: number
+      responses:
+        "200":
+          description: ok
