@@ -1,0 +1,95 @@
+# ---------------------------------------------------------
+# Node / TypeScript / Lambda Backend 用 .gitignore
+# ---------------------------------------------------------
+
+# Node modules
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# TypeScript build output
+dist/
+*.tsbuildinfo
+
+# Debug logs
+logs/
+*.log
+*.tmp
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Local-only config
+config/local.json
+
+# DynamoDB Local
+.dynamodb/
+data/
+*.db
+
+# AWS SAM / CDK / Serverless Framework artifacts
+.aws-sam/
+cdk.out/
+.serverless/
+
+# Coverage output
+coverage/
+
+# Mac / OS プラットフォームの不要ファイル
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker related
+docker/*.pid
+docker/*.log
+docker-compose.override.yml
+
+# AWS Credentials accidentally placed
+.aws/
+*.pem
+*.key
+
+# Swagger UI build artifacts (ローカル用)
+swagger-ui-dist/
+
+# Express local build cache
+.local/
+
+# Temporary cache
+tmp/
+cache/
+
+# Test cache files
+jest-cache/
+jest-temp/
+jest/
+
+# Ignore production build artifacts
+*.zip
+
+# TypeScript incremental build artifacts
+*.tsbuildinfo
+
+# pnpm / bun / other package managers
+pnpm-lock.yaml
+bun.lockb
+
+# Ignore playground / scratch directories
+sandbox/
+scratch/
+playground/
+
+# Ignore generated markdown docs (optional)
+docs/generated/
+
+# Log output from pino-pretty
+pino.log
