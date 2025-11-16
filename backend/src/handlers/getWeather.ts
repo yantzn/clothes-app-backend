@@ -38,6 +38,7 @@ export const handler = async (
   }
 
   try {
+    // 天気情報取得処理
     const successResponse: WeatherResponse =
       await getWeatherByUserId(parsed.data.userId);
 
