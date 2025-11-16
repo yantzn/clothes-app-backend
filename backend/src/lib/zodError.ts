@@ -1,8 +1,8 @@
 // src/lib/zodError.ts
 import type { ZodError } from "zod";
-import { ErrorCodeMap } from "../errors/errorCodes.js";
-import { ErrorMessages } from "../errors/errorMessages.js";
-import type { FieldErrorDetail } from "../types/profile.js";
+import { ErrorCodeMap } from "../errors/errorCodes";
+import { ErrorMessages } from "../errors/errorMessages";
+import type { FieldErrorDetail } from "../types/errors";
 
 // ZodError -> { field: [{ code, message }] } 形式に整形
 export const formatZodError = (

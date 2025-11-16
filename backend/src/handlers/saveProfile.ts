@@ -5,11 +5,12 @@ import type {
   Context
 } from "aws-lambda";
 
-import { saveProfileData } from "../services/profileService.js";
-import { lambdaLogger } from "../lib/lambdaLogger.js";
-import { SaveProfileSchema } from "../validators/profileSchema.js";
-import { formatZodError } from "../lib/zodError.js";
-import type { SaveProfileResponse, ErrorResponse } from "../types/profile.js";
+import { saveProfileData } from "../services/profileService";
+import { lambdaLogger } from "../lib/lambdaLogger";
+import { SaveProfileSchema } from "../validators/profileSchema";
+import { formatZodError } from "../lib/zodError";
+import type { ErrorResponse } from "../types/errors";
+import type { SaveProfileResponse} from "../types/profile";
 
 /**
  * JSON の安全パース
@@ -33,18 +34,17 @@ export const handler = async (
 
   log.info("saveProfile START", { rawBody: event.body, parsed: body });
 
-  // --- Zod validation ---
+  // Zod バリデーション
   const parsed = SaveProfileSchema.safeParse(body);
 
   if (!parsed.success) {
-    const details = formatZodError(parsed.error);
-
+    // バリデーションエラー処理
     const errorResponse: ErrorResponse = {
       error: "Invalid request",
-      details
+      details: formatZodError(parsed.error)
     };
 
-    log.warn("Validation error in saveProfile", { details });
+    log.warn("Validation error in saveProfile", { details: formatZodError(parsed.error) });
 
     return {
       statusCode: 400,

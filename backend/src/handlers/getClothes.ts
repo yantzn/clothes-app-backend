@@ -1,17 +1,25 @@
-// handlers/getClothes.ts
+// src/handlers/getClothes.ts
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
   Context
 } from "aws-lambda";
 
-import { getClothesSuggestion } from "../services/clothesService";
 import { lambdaLogger } from "../lib/lambdaLogger";
+import { PostClothesSchema } from "../validators/clothesSchema";
+import { formatZodError } from "../lib/zodError";
 
-const safeParse = (body: string | undefined | null): any => {
-  if (!body) return {};
+import { getClothesSuggestionByUserId } from "../services/clothesService";
+import type { ErrorResponse } from "../types/errors";
+import type { ClothesSuggestion } from "../types/clothes";
+
+/**
+ * POST /clothes
+ * Body: { userId: string }
+ */
+const safeParse = (body: string | undefined | null) => {
   try {
-    return JSON.parse(body);
+    return body ? JSON.parse(body) : {};
   } catch {
     return {};
   }
@@ -21,40 +29,44 @@ export const handler = async (
   event: APIGatewayProxyEventV2,
   context: Context
 ): Promise<APIGatewayProxyResultV2> => {
+  // ロガー初期化
   const log = lambdaLogger(context);
+  // リクエストボディ取得
+  const body = safeParse(event.body);
+  // Zod バリデーション
+  const parsed = PostClothesSchema.safeParse(body);
+  // バリデーションエラー
+  if (!parsed.success) {
+    const errorResponse: ErrorResponse = {
+      error: "Invalid request",
+      details: formatZodError(parsed.error)
+    };
+
+    return {
+      statusCode: 400,
+      body: JSON.stringify(errorResponse)
+    };
+  }
 
   try {
-    const body = safeParse(event.body);
-
-    if (!body.userId || typeof body.feels_like !== "number") {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: "Missing required fields (userId, feels_like)"
-        })
-      };
-    }
-
-    const suggestion = await getClothesSuggestion(
-      body.userId,
-      body.feels_like
-    );
-
-    log.info("Clothes suggested", {
-      userId: body.userId,
-      feels_like: body.feels_like
-    });
+    // 服装提案取得処理
+    const successResponse: ClothesSuggestion =
+      await getClothesSuggestionByUserId(parsed.data.userId);
 
     return {
       statusCode: 200,
-      body: JSON.stringify(suggestion)
+      body: JSON.stringify(successResponse)
     };
   } catch (err: any) {
     log.error("getClothes failed", { error: err.message });
 
+    const errorResponse: ErrorResponse = {
+      error: "Internal Server Error"
+    };
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" })
+      body: JSON.stringify(errorResponse)
     };
   }
 };

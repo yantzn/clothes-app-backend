@@ -1,5 +1,5 @@
 // lib/openweatherClient.ts
-import { HttpClient } from "./httpClient.js";
+import { HttpClient } from "./httpClient";
 import { ENV } from "../config/env.js";
 
 // OpenWeatherMap API クライアントクラス

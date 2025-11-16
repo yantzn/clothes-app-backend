@@ -1,5 +1,5 @@
 // lib/openweather.ts
-import { OpenWeatherClient } from "./openweatherClient.js";
+import { OpenWeatherClient } from "./openweatherClient";
 
 const client = new OpenWeatherClient();
 
