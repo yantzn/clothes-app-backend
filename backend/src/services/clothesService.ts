@@ -1,65 +1,83 @@
-import { getUser } from "../lib/dynamo";
-import { getWeather } from "../lib/openweather";
-import type { ClothesSuggestion } from "../types/clothes";
+import { AGE_CLOTHES_MATRIX } from "../rules/ageClothesMatrix.js";
+import { categorizeTemperature } from "../models/temperature.js";
+import type { AgeGroup } from "../models/clothes.js";
+import type { ClothesResponse } from "../types/clothes.js";
+import { getUserProfile } from "./profileService.js";
+import { getWeather } from "../lib/openweather.js";
 
 /**
- * 服装提案ロジック（簡易版）
+ * 誕生日（YYYY-MM-DD）から年齢（年）をざっくり算出
  */
-const buildSuggestion = (temp: number): { suggestion: string; items: string[] } => {
-  if (temp >= 28) {
-    return {
-      suggestion: "とても暑いです。通気性の良い服装を選びましょう",
-      items: ["Tシャツ", "ハーフパンツ", "サンダル"]
-    };
+const calculateAgeYears = (birthday: string): number => {
+  const today = new Date();
+  const [y, m, d] = birthday.split("-").map((v) => parseInt(v, 10));
+  if (!y || !m || !d) return 0;
+
+  const birth = new Date(y, m - 1, d);
+  let age = today.getFullYear() - birth.getFullYear();
+
+  const hasNotHadBirthdayThisYear =
+    today.getMonth() < birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+
+  if (hasNotHadBirthdayThisYear) {
+    age--;
   }
 
-  if (temp >= 20) {
-    return {
-      suggestion: "暖かい気温です。軽装で問題ありません",
-      items: ["長袖Tシャツ", "薄手のパーカー"]
-    };
-  }
-
-  if (temp >= 12) {
-    return {
-      suggestion: "やや肌寒いです。羽織りを持っていきましょう",
-      items: ["スウェット", "薄手ジャケット"]
-    };
-  }
-
-  return {
-    suggestion: "寒いです。防寒をしっかりしてください",
-    items: ["コート", "ニット", "暖かい長ズボン"]
-  };
+  return age < 0 ? 0 : age;
 };
 
 /**
- * userId → lat/lon → 天気 → 服装提案
+ * 年齢(年)から AgeGroup を推定
  */
-export const getClothesSuggestionByUserId = async (
-  userId: string
-): Promise<ClothesSuggestion> => {
-  const user = await getUser(userId);
+const toAgeGroup = (ageYears: number): AgeGroup => {
+  if (ageYears < 1) return "infant";
+  if (ageYears < 6) return "toddler";
+  return "child";
+};
 
-  if (!user.Item) {
+/**
+ * ユーザーIDをもとに、現在の天気・年齢・医学ルールを組み合わせて服装提案を返す
+ */
+export const getClothes = async (userId: string): Promise<ClothesResponse> => {
+  const profile = await getUserProfile(userId);
+
+  if (!profile) {
     throw new Error(`User not found: ${userId}`);
   }
 
-  const profile = user.Item;
+  if (!profile.lat || !profile.lon) {
+    throw new Error(`User profile has no location (lat/lon): ${userId}`);
+  }
+
+  if (!profile.birthday) {
+    throw new Error(`User profile has no birthday: ${userId}`);
+  }
+
+  const ageYears = calculateAgeYears(profile.birthday);
+  const ageGroup = toAgeGroup(ageYears);
 
   const weather = await getWeather(profile.lat, profile.lon);
   const temp = weather.main.temp;
-  const humidity = weather.main.humidity;
-  const wind = weather.wind.speed;
+  const feelsLike = weather.main.feels_like ?? temp;
 
-  const result = buildSuggestion(temp);
+  const category = categorizeTemperature(feelsLike);
+
+  const rule = AGE_CLOTHES_MATRIX[ageGroup][category];
 
   return {
     userId,
-    temperature: temp,
-    humidity: humidity,
-    windSpeed: wind,
-    suggestion: result.suggestion,
-    items: result.items
+    ageGroup,
+    temperature: {
+      value: temp,
+      feelsLike,
+      category
+    },
+    suggestion: {
+      summary: rule.summary,
+      layers: rule.layers,
+      notes: rule.notes,
+      references: rule.references
+    }
   };
 };

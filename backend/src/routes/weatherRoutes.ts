@@ -9,10 +9,10 @@ const dummyContext = {
   awsRequestId: "local-dev",
 } as any;
 
-router.get("/", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   try {
     const event = {
-      queryStringParameters: req.query as Record<string, string>
+      body: JSON.stringify(req.body)
     };
     const raw = await handler(event as any, dummyContext);
     const result = lambdaAdapter(raw);

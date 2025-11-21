@@ -1,4 +1,3 @@
-// lib/httpClient.ts
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { logger } from "./logger";
 

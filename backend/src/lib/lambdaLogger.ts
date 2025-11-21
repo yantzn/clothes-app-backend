@@ -1,4 +1,3 @@
-// lib/lambdaLogger.ts
 import type { Context } from "aws-lambda";
 import { logger } from "./logger";
 

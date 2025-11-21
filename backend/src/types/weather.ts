@@ -1,7 +1,12 @@
+import type { TemperatureCategory } from "../models/temperature";
 
 export interface WeatherResponse {
-  userId: string;
-  lat: number;
-  lon: number;
-  weather: any; // OpenWeather API のレスポンスそのまま
+  region: string;
+  temperature: {
+    value: number;
+    feelsLike: number;
+    humidity: number;
+    windSpeed: number;
+    category: TemperatureCategory;
+  };
 }

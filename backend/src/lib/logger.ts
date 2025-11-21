@@ -1,4 +1,3 @@
-// lib/logger.ts
 import pino from "pino";
 import { ENV } from "../config/env";
 

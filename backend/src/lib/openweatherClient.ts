@@ -1,6 +1,5 @@
-// lib/openweatherClient.ts
 import { HttpClient } from "./httpClient";
-import { ENV } from "../config/env.js";
+import { ENV } from "../config/env";
 
 // OpenWeatherMap API クライアントクラス
 export class OpenWeatherClient extends HttpClient {
@@ -42,3 +41,5 @@ export class OpenWeatherClient extends HttpClient {
     return res.data;
   }
 }
+// シングルトンインスタンスのエクスポート
+export const openWeatherClient = new OpenWeatherClient();

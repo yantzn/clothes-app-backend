@@ -1,9 +1,34 @@
+// src/types/clothes.ts
 
-export interface ClothesSuggestion {
+import type { AgeGroup } from "../models/clothes";
+import type { TemperatureCategory } from "../models/temperature";
+
+/**
+ * 温度情報
+ */
+export interface TemperatureInfo {
+  value: number; // 実気温
+  feelsLike: number; // 体感温度（OpenWeather "feels_like"）
+  category: TemperatureCategory;
+}
+
+/**
+ * 服装提案
+ */
+export interface ClothesSuggestionPayload {
+  summary: string;
+  layers: string[];
+  notes: string[];
+  references: string[];
+}
+
+/**
+ * Clothes API のレスポンス
+ * GET /api/clothes?userId=xxx を想定
+ */
+export interface ClothesResponse {
   userId: string;
-  temperature: number;
-  humidity: number;
-  windSpeed: number;
-  suggestion: string;     // 例: "薄手の長袖 + パーカーがおすすめ"
-  items: string[];        // 例: ["長袖シャツ", "パーカー", "スニーカー"]
+  ageGroup: AgeGroup;
+  temperature: TemperatureInfo;
+  suggestion: ClothesSuggestionPayload;
 }

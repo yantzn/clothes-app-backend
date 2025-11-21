@@ -1,28 +1,27 @@
-import { getUser } from "../lib/dynamo";
-import { getWeather } from "../lib/openweather";
+// src/services/weatherService.ts
+import { openWeatherClient  } from "../lib/openweatherClient";
 import type { WeatherResponse } from "../types/weather";
+import { categorizeTemperature } from "../models/temperature";
 
-/**
- * 指定 userId のユーザープロフィールから
- * lat / lon を取得し天気を取得
- */
-export const getWeatherByUserId = async (
-  userId: string
+export const getWeatherByRegion = async (
+  region: string
 ): Promise<WeatherResponse> => {
-  const user = await getUser(userId);
+  // 1. 地名 → 緯度経度
+  const { lat, lon } = await openWeatherClient.getLatLon(region);
 
-  if (!user.Item) {
-    throw new Error(`User not found: ${userId}`);
-  }
+  // 2. 天気情報を取得
+  const weather = await openWeatherClient.getWeather(lat, lon);
 
-  const profile = user.Item;
-
-  const weather = await getWeather(profile.lat, profile.lon);
+  const category = categorizeTemperature(weather.main.temp);
 
   return {
-    userId,
-    lat: profile.lat,
-    lon: profile.lon,
-    weather
+    region,
+    temperature: {
+      value: weather.main.temp,
+      feelsLike: weather.main.feels_like,
+      humidity: weather.main.humidity,
+      windSpeed: weather.wind.speed,
+      category
+    }
   };
 };

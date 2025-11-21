@@ -1,4 +1,6 @@
-// ユーザープロフィールの型定義
+/**
+ * ユーザープロフィールモデル
+ */
 export interface UserProfile {
   userId: string;
   region: string;

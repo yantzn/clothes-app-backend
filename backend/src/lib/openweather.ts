@@ -1,4 +1,3 @@
-// lib/openweather.ts
 import { OpenWeatherClient } from "./openweatherClient";
 
 const client = new OpenWeatherClient();

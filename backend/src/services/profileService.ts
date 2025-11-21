@@ -1,6 +1,6 @@
 import { putUser, getUser } from "../lib/dynamo";
 import { getLatLon } from "../lib/openweather";
-import type { UserProfile } from "../models/UserProfile";
+import type { UserProfile } from "../models/profile";
 import type { SaveProfileInput } from "../validators/profileSchema";
 
 /**
