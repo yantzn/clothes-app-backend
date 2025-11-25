@@ -2,6 +2,7 @@
 
 import type { AgeGroup } from "../models/clothes";
 import type { TemperatureCategory } from "../models/temperature";
+import type { RakutenItem } from "./rakuten";
 
 /**
  * 温度情報
@@ -31,4 +32,5 @@ export interface ClothesResponse {
   ageGroup: AgeGroup;
   temperature: TemperatureInfo;
   suggestion: ClothesSuggestionPayload;
+  products?: RakutenItem[]; // 楽天商品（統合後）
 }

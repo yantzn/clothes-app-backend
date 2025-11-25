@@ -14,5 +14,7 @@ const requireEnv = (key: string): string => {
 export const ENV = {
   region: requireEnv("AWS_REGION"),
   openWeatherKey: requireEnv("OPENWEATHER_API_KEY"),
+  rakutenAppId: requireEnv("RAKUTEN_APP_ID"),
+  rakutenAffiliateId: process.env.RAKUTEN_AFFILIATE_ID,
   isLocal: process.env.IS_LOCAL === "true"
 };
