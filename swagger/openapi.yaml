@@ -17,47 +17,549 @@ paths:
             schema:
               type: object
               properties:
-                userId:
-                  type: string
-                region:
-                  type: string
+                lat:
+                  type: number
+                  description: Latitude in decimal degrees
+                lon:
+                  type: number
+                  description: Longitude in decimal degrees
                 birthday:
                   type: string
                   format: date
                 gender:
                   type: string
+                  enum: [male, female, other]
                 notificationsEnabled:
                   type: boolean
+                nickname:
+                  type: string
+                  maxLength: 30
+                family:
+                  type: array
+                  description: Optional family members (up to 10)
+                  maxItems: 10
+                  items:
+                    type: object
+                    required: [name, birthday, gender]
+                    properties:
+                      name:
+                        type: string
+                      birthday:
+                        type: string
+                        format: date
+                      gender:
+                        type: string
+                        enum: [male, female, other]
       responses:
-        "200":
-          description: ok
-
-  /weather:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+              examples:
+                success:
+                  value:
+                    message: Profile saved
+                    userId: 123e4567-e89b-12d3-a456-426614174000
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      lat:
+                        - code: "invalid_type"
+                          message: "Expected number"
+                      birthday:
+                        - code: "invalid_format"
+                          message: "Expected YYYY-MM-DD"
+                      nickname:
+                        - code: "too_long"
+                          message: "Max length is 30"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /profile/{userId}:
     get:
-      summary: Get weather
+      summary: Get user profile
       parameters:
         - name: userId
-          in: query
+          in: path
+          required: true
           schema:
             type: string
       responses:
         "200":
           description: ok
-
-  /clothes:
-    post:
-      summary: Get clothing suggestion
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [userId, lat, lon, birthday, notificationsEnabled, family]
+                properties:
+                  userId:
+                    type: string
+                  lat:
+                    type: number
+                  lon:
+                    type: number
+                  birthday:
+                    type: string
+                    format: date
+                  gender:
+                    type: string
+                    enum: [male, female, other]
+                  notificationsEnabled:
+                    type: boolean
+                  nickname:
+                    type: string
+                    maxLength: 30
+                  family:
+                    type: array
+                    items:
+                      type: object
+                      required: [name, birthday, gender]
+                      properties:
+                        name:
+                          type: string
+                        birthday:
+                          type: string
+                          format: date
+                        gender:
+                          type: string
+                          enum: [male, female, other]
+              examples:
+                success:
+                  value:
+                    userId: 123e4567-e89b-12d3-a456-426614174000
+                    lat: 35.6940
+                    lon: 139.7530
+                    birthday: "2020-04-12"
+                    gender: "other"
+                    notificationsEnabled: true
+                    nickname: "たろう"
+                    family:
+                      - name: "娘"
+                        birthday: "2023-11-01"
+                        gender: "female"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      userId:
+                        - code: "required"
+                          message: "Required path parameter"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    error: "Not Found"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update user profile (partial)
+      description: Send only fields you want to change. Unspecified fields remain unchanged. At least one field must be provided.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              minProperties: 1
               properties:
-                userId:
-                  type: string
-                feels_like:
+                lat:
                   type: number
+                  description: Latitude in decimal degrees
+                lon:
+                  type: number
+                  description: Longitude in decimal degrees
+                birthday:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum: [male, female, other]
+                notificationsEnabled:
+                  type: boolean
+                nickname:
+                  type: string
+                  maxLength: 30
       responses:
         "200":
           description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+              examples:
+                success:
+                  value:
+                    message: "Profile updated"
+                    userId: 123e4567-e89b-12d3-a456-426614174000
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      nickname:
+                        - code: "too_long"
+                          message: "Max length is 30"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    error: "Not Found"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Replace family information
+      description: Replace the family list for a profile. Entire list is replaced. If `family` is an empty array, the profile will be treated as having no family information (the `family` attribute is removed).
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [family]
+              properties:
+                family:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    required: [name, birthday, gender]
+                    properties:
+                      name:
+                        type: string
+                      birthday:
+                        type: string
+                        format: date
+                      gender:
+                        type: string
+                        enum: [male, female, other]
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+              examples:
+                success:
+                  value:
+                    message: "Family replaced"
+                    userId: 123e4567-e89b-12d3-a456-426614174000
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      family:
+                        - code: "too_many_items"
+                          message: "Max items is 10"
+                      family[0].birthday:
+                        - code: "invalid_format"
+                          message: "Expected YYYY-MM-DD"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    error: "Not Found"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /home/{userId}:
+    get:
+      summary: Get today's combined home data
+      description: ホーム画面用の統合API。天気情報、今日のひとこと、本日の服装を一括で返す。
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HomeTodayResponse'
+              examples:
+                success:
+                  value:
+                    summary: "薄手の長袖と軽めの羽織りがちょうど良い気温です。風が強い場合は上着で体温調節を。"
+                    weather:
+                      region: "船橋"
+                      value: 9.0
+                      feelsLike: 9.0
+                      humidity: 90
+                      windSpeed: 1.2
+                      category: "cold"
+                      condition: "cloudy"
+                    members:
+                      - name: "たろう"
+                        ageGroup: "child"
+                        suggestion:
+                          summary: "半袖＋薄手羽織で快適（たろう向け）"
+                          layers: ["半袖Tシャツ", "薄手パーカー", "動きやすいパンツ"]
+                          notes: []
+                          references: []
+                      - name: "パパ"
+                        ageGroup: "adult"
+                        suggestion:
+                          summary: "長袖＋軽めの羽織"
+                          layers: ["長袖Tシャツ", "薄手パーカー", "パンツ"]
+                          notes: []
+                          references: []
+                      - name: "娘"
+                        ageGroup: "toddler"
+                        suggestion:
+                          summary: "長袖＋羽織で体温調節"
+                          layers: ["長袖Tシャツ", "カーディガン", "やわらかいパンツ"]
+                          notes: []
+                          references: []
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      userId:
+                        - code: "required"
+                          message: "Required path parameter"
+        "404":
+          description: User or data not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    error: "Not Found"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TodayWeather:
+      type: object
+      required: [region, value, feelsLike, humidity, windSpeed, category, condition]
+      properties:
+        region:
+          type: string
+          description: 表示地域名
+        value:
+          type: number
+          format: float
+          description: 現在気温(°C)
+        feelsLike:
+          type: number
+          format: float
+          description: 体感温度(°C)
+        humidity:
+          type: integer
+          description: 湿度(%)
+        windSpeed:
+          type: number
+          format: float
+          description: 風速(m/s)
+        category:
+          type: string
+          description: 気温カテゴリ
+          enum: [freezing, cold, cool, mild, warm, hot]
+        condition:
+          type: string
+          description: 天気状態
+          enum: [sunny, clear, cloudy, rain, drizzle, thunderstorm, snow, fog, mist, haze]
+    TemperatureInfo:
+      type: object
+      required: [value, feelsLike, category]
+      properties:
+        value:
+          type: number
+          format: float
+        feelsLike:
+          type: number
+          format: float
+        category:
+          type: string
+          enum: [freezing, cold, cool, mild, warm, hot]
+    SuggestionDetails:
+      type: object
+      required: [summary, layers]
+      properties:
+        summary:
+          type: string
+          description: 今日のひとこと（1〜2文）
+          maxLength: 200
+        layers:
+          type: array
+          items:
+            type: string
+        notes:
+          type: array
+          items:
+            type: string
+        references:
+          type: array
+          items:
+            type: string
+            format: uri
+    ClothesSuggestion:
+      type: object
+      required: [userId, ageGroup, temperature, suggestion]
+      properties:
+        userId:
+          type: string
+        ageGroup:
+          type: string
+          description: 年齢区分
+          enum: [infant, toddler, child]
+        temperature:
+          $ref: '#/components/schemas/TemperatureInfo'
+        suggestion:
+          $ref: '#/components/schemas/SuggestionDetails'
+    MemberClothesCard:
+      type: object
+      description: 本日の服装カード（タブ切替の各人物用）
+      required: [name, ageGroup, suggestion]
+      properties:
+        name:
+          type: string
+          description: "表示名（例: たろう／パパ／娘）。プロフィールのnicknameやfamily.name。"
+        ageGroup:
+          type: string
+          enum: [infant, toddler, child]
+        illustrationUrl:
+          type: string
+          format: uri
+          description: 服装イラスト画像URL（未定の場合は省略）
+        suggestion:
+          $ref: '#/components/schemas/SuggestionDetails'
+    HomeTodayResponse:
+      type: object
+      description: ホーム画面に必要な統合レスポンス
+      required: [summary, weather, members]
+      properties:
+        summary:
+          type: string
+          description: 今日のひとこと（1〜2文）
+          maxLength: 200
+        weather:
+          $ref: '#/components/schemas/TodayWeather'
+        members:
+          type: array
+          description: 本日の服装カード一覧（ユーザー＋家族）
+          items:
+            $ref: '#/components/schemas/MemberClothesCard'
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: "エラーメッセージ（例: Internal Server Error）"
+        details:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                code:
+                  type: string
+                message:
+                  type: string

@@ -1,7 +1,8 @@
-import { putUser, getUser } from "../lib/dynamo";
-import { getLatLon } from "../lib/openweather";
+import { DynamoUserProfileRepository } from "../repositories/dynamoUserProfileRepository";
 import type { UserProfile } from "../models/profile";
 import type { SaveProfileInput } from "../validators/profileSchema";
+import type { UpdateProfileChanges, UpdateProfileInput } from "../validators/profileUpdateSchema";
+import type { FamilyMemberInput } from "../validators/profileFamilySchema";
 
 /**
  * ユーザープロフィールを保存する。
@@ -26,24 +27,62 @@ import type { SaveProfileInput } from "../validators/profileSchema";
  * - プロフィールのバージョニング/履歴
  * - 逆ジオコーディングによる地域名正規化
  */
-export const saveProfileData = async (input: SaveProfileInput): Promise<void> => {
-  // WHY: 後続処理で複数回使う座標を先に解決し外部 API 再呼び出しを回避
-  const { lat, lon } = await getLatLon(input.region);
+const repo = new DynamoUserProfileRepository();
 
-  const profile: UserProfile = {
-    ...input,
-    lat,
-    lon,
+export const saveProfileData = async (input: SaveProfileInput, userId: string): Promise<void> => {
+  // WHY: 座標はクライアントから直接受け取り、外部 API 呼び出しを削減
+  const base: Omit<UserProfile, "family"> = {
+    userId,
+    birthday: input.birthday,
+    gender: input.gender,
+    notificationsEnabled: input.notificationsEnabled,
+    lat: input.lat,
+    lon: input.lon,
   };
+  const profile: UserProfile = {
+    ...base,
+    ...(input.nickname ? { nickname: input.nickname } : {}),
+    ...(input.family && input.family.length > 0 ? { family: input.family } : {}),
+  } as UserProfile;
 
   // WHY: userId パーティションキーで高速参照できる最小セットとして永続化
-  await putUser(profile);
+  await repo.put(profile);
 };
 
 /**
  * ユーザープロフィールを取得する
  */
 export const getUserProfile = async (userId: string): Promise<UserProfile | undefined> => {
-  const res = await getUser(userId);
-  return res.Item as UserProfile | undefined;
+  return repo.getById(userId);
+};
+
+/**
+ * ユーザープロフィールを更新する（PATCH）
+ * - 更新可能フィールド: lat, lon, birthday, gender, notificationsEnabled
+ */
+export const updateProfileData = async (userId: string, changes: UpdateProfileChanges): Promise<void> => {
+  await repo.update(userId, {
+    lat: changes.lat,
+    lon: changes.lon,
+    birthday: changes.birthday,
+    gender: changes.gender,
+    notificationsEnabled: changes.notificationsEnabled,
+    nickname: changes.nickname,
+  });
+};
+
+/**
+ * 家族情報を全置換する（PUT）
+ * - 入力の配列をそのまま `family` 属性へ保存
+ */
+export const replaceProfileFamily = async (
+  userId: string,
+  family: FamilyMemberInput[]
+): Promise<void> => {
+  if (family.length === 0) {
+    // 空配列は家族情報なしとして属性削除
+    await repo.removeFamily(userId);
+  } else {
+    await repo.update(userId, { family });
+  }
 };

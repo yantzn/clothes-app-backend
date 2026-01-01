@@ -5,13 +5,12 @@ import { loggerMiddleware } from "../middleware/loggerMiddleware";
 import { errorMiddleware } from "../middleware/errorMiddleware";
 
 import profileRoutes from "../routes/profileRoutes";
-import weatherRoutes from "../routes/weatherRoutes";
-import clothesRoutes from "../routes/clothesRoutes";
+// removed legacy /weather, /clothes routes
+import homeRoutes from "../routes/homeRoutes";
 
 // 全TSのホットリロード用（tsx watch）
 import "../services/profileService";
-import "../services/weatherService";
-import "../services/clothesService";
+// removed legacy side-effect imports for retired services
 import "../lib/dynamo";
 import "../lib/openweather";
 import "../config/env";
@@ -22,8 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/profile", profileRoutes);
-app.use("/api/weather", weatherRoutes);
-app.use("/api/clothes", clothesRoutes);
+// removed legacy /weather, /clothes routes
+app.use("/api/home", homeRoutes);
 
 // 共通エラーハンドラ
 app.use(errorMiddleware);
