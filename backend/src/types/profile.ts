@@ -17,8 +17,7 @@ export interface FamilyMember {
 /** GET /profile のレスポンス */
 export interface GetProfileResponse {
   userId: string;
-  lat: number;
-  lon: number;
+  region: string;
   birthday: string;
   gender?: "male" | "female" | "other";
   notificationsEnabled: boolean;

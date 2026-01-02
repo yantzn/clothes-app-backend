@@ -17,12 +17,8 @@ paths:
             schema:
               type: object
               properties:
-                lat:
-                  type: number
-                  description: Latitude in decimal degrees
-                lon:
-                  type: number
-                  description: Longitude in decimal degrees
+                region:
+                  type: string
                 birthday:
                   type: string
                   format: date
@@ -109,14 +105,12 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [userId, lat, lon, birthday, notificationsEnabled, family]
+                required: [userId, region,  birthday, notificationsEnabled, family]
                 properties:
                   userId:
                     type: string
-                  lat:
-                    type: number
-                  lon:
-                    type: number
+                  region:
+                    type: string
                   birthday:
                     type: string
                     format: date
@@ -203,12 +197,8 @@ paths:
               type: object
               minProperties: 1
               properties:
-                lat:
-                  type: number
-                  description: Latitude in decimal degrees
-                lon:
-                  type: number
-                  description: Longitude in decimal degrees
+                region:
+                  type: string
                 birthday:
                   type: string
                   format: date
@@ -522,7 +512,7 @@ components:
           description: "表示名（例: たろう／パパ／娘）。プロフィールのnicknameやfamily.name。"
         ageGroup:
           type: string
-          enum: [infant, toddler, child]
+          enum: [infant, toddler, child, teen, adult, senior]
         illustrationUrl:
           type: string
           format: uri

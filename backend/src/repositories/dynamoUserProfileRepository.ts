@@ -41,8 +41,7 @@ export class DynamoUserProfileRepository implements UserProfileRepository {
       sets.push(`${nameKey} = ${valueKey}`);
     };
 
-    assign("lat", changes.lat);
-    assign("lon", changes.lon);
+    assign("region", changes.region);
     assign("birthday", changes.birthday);
     assign("gender", changes.gender);
     assign("notificationsEnabled", changes.notificationsEnabled);

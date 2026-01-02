@@ -29,14 +29,6 @@ export interface AgeClothesSuggestion {
    */
   notes: string[];
 
-  /**
-   * 参考にした日本の公的リンク
-   * - 厚生労働省 母子保健
-   * - 国立成育医療研究センター
-   * - 日本小児科医会
-   * - 日本小児科学会
-   */
-  references: string[];
 }
 
 /**

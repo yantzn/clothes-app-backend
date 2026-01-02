@@ -3,6 +3,7 @@ import type { UserProfile } from "../models/profile";
 import type { SaveProfileInput } from "../validators/profileSchema";
 import type { UpdateProfileChanges, UpdateProfileInput } from "../validators/profileUpdateSchema";
 import type { FamilyMemberInput } from "../validators/profileFamilySchema";
+import { getLatLon } from "../lib/openweather";
 
 /**
  * ユーザープロフィールを保存する。
@@ -30,20 +31,19 @@ import type { FamilyMemberInput } from "../validators/profileFamilySchema";
 const repo = new DynamoUserProfileRepository();
 
 export const saveProfileData = async (input: SaveProfileInput, userId: string): Promise<void> => {
-  // WHY: 座標はクライアントから直接受け取り、外部 API 呼び出しを削減
+  // WHY: 地域文字列から座標をバックエンドで解決し、以降の気象取得を最適化
   const base: Omit<UserProfile, "family"> = {
     userId,
     birthday: input.birthday,
     gender: input.gender,
     notificationsEnabled: input.notificationsEnabled,
-    lat: input.lat,
-    lon: input.lon,
+    region: input.region,
+    nickname: input.nickname,
   };
   const profile: UserProfile = {
     ...base,
-    ...(input.nickname ? { nickname: input.nickname } : {}),
     ...(input.family && input.family.length > 0 ? { family: input.family } : {}),
-  } as UserProfile;
+  };
 
   // WHY: userId パーティションキーで高速参照できる最小セットとして永続化
   await repo.put(profile);
@@ -62,8 +62,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | unde
  */
 export const updateProfileData = async (userId: string, changes: UpdateProfileChanges): Promise<void> => {
   await repo.update(userId, {
-    lat: changes.lat,
-    lon: changes.lon,
+    region: changes.region,
     birthday: changes.birthday,
     gender: changes.gender,
     notificationsEnabled: changes.notificationsEnabled,

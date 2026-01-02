@@ -1,7 +1,8 @@
 // src/rules/ageClothesMatrix.ts
 
-import type { AgeClothesMatrix } from "../models/clothes";
-import { MEDICAL_REFERENCES } from "./medicalReferences";
+import type { AgeClothesMatrix, AgeClothesSuggestion } from "../models/clothes";
+import type { TemperatureCategory } from "../models/temperature";
+import type { GeneralAgeGroup } from "../types/home";
 
 /**
  * 年齢別 × 温度帯別 服装マトリクス（中度修正版）
@@ -37,7 +38,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "外出時は大人より1枚多い服装を目安にしつつ、顔色や手足の冷えをこまめに確認してください。",
         "掛け物やフードで口や鼻を覆わないよう、窒息リスクに注意が必要です。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw, MEDICAL_REFERENCES.ncchd]
     },
     cold: {
       summary:
@@ -53,7 +53,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "室内では着せすぎによる発汗にも注意し、背中が汗で湿っていないか確認してください。",
         "外出時間は短めにし、抱っこ紐やベビーカー利用時も顔色・手足の冷えを定期的に確認してください。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw, MEDICAL_REFERENCES.ncchd]
     },
     cool: {
       summary:
@@ -63,7 +62,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "成育医療センターの情報でも、重ね着でこまめに調整することが推奨されています。",
         "暖房が効いた室内では上着を脱がせるなど、環境に応じた調整を行ってください。"
       ],
-      references: [MEDICAL_REFERENCES.ncchd]
     },
     mild: {
       summary:
@@ -73,7 +71,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "室温20〜23℃程度では、着せすぎ・薄着しすぎの両方に注意し、背中や首元の汗をチェックしてください。",
         "背中・首元に汗がないかこまめに確認し、必要に応じて薄着に調整してください。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     warm: {
       summary:
@@ -83,7 +80,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "日本小児科医会の情報では、暑い時期は通気性の高い衣服とこまめな水分・授乳が重要とされています。",
         "寝汗やあせもに注意し、汗をかいたら早めに着替えられるよう予備の衣服を用意してください。"
       ],
-      references: [MEDICAL_REFERENCES.jpa, MEDICAL_REFERENCES.jpeds]
     },
     hot: {
       summary:
@@ -94,7 +90,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "直射日光下の外出は避け、エアコンや扇風機で室内環境を適切に保ってください。",
         "授乳・水分補給の間隔が極端に空かないよう注意し、元気さや顔色をこまめに観察してください。"
       ],
-      references: [MEDICAL_REFERENCES.jpeds, MEDICAL_REFERENCES.jpa]
     }
   },
 
@@ -114,7 +109,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "外遊び中は体温が上がりやすい一方で、休憩時に一気に冷えることがあります。",
         "前開きのアウターなど、自分や保護者が調整しやすい服装が推奨されます。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     cold: {
       summary:
@@ -128,7 +122,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "登園・登下校時など、じっとしている時間が長い場合は特にアウターでの保温が重要です。",
         "屋内活動では中間着またはアウターを脱いで調整できるようにしてください。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     cool: {
       summary:
@@ -137,7 +130,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
       notes: [
         "屋外での活動前後に、体感に応じて前を開けたり脱いだりできる服装が望ましいです。"
       ],
-      references: [MEDICAL_REFERENCES.ncchd]
     },
     mild: {
       summary:
@@ -147,7 +139,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "国立成育医療研究センターは、活動量が多い幼児は“汗をかきやすく冷えやすい”ため、脱ぎ着しやすい服装が望ましいと示しています。",
         "外遊び後は汗冷えしないよう、必要に応じて着替えを行ってください。"
       ],
-      references: [MEDICAL_REFERENCES.ncchd]
     },
     warm: {
       summary:
@@ -157,7 +148,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "日本小児科学会は、暑い時期の戸外活動では水分補給と衣服の軽装化を推奨しています。",
         "直射日光が強い時間帯は、帽子の着用や日陰での活動を心がけてください。"
       ],
-      references: [MEDICAL_REFERENCES.jpeds, MEDICAL_REFERENCES.jpa]
     },
     hot: {
       summary:
@@ -167,7 +157,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "真夏日・猛暑日は、外遊び時間や運動量を制限し、こまめに休憩と水分補給を行うことが重要です。",
         "顔色が悪い・元気がない・ぐったりしている場合は速やかに涼しい場所へ移動し、医療機関への相談も検討してください。"
       ],
-      references: [MEDICAL_REFERENCES.jpeds, MEDICAL_REFERENCES.jpa]
     }
   },
 
@@ -187,7 +176,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "強風や雪の日は、風を通しにくいアウターが有効です。",
         "マフラーやネックウォーマーの巻き方に注意し、遊具などに巻き込まれないようにしてください。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     cold: {
       summary:
@@ -197,7 +185,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "厚生労働省の資料では、登下校などで“動かない時間が長い場合は体温が下がりやすい”とされ、アウターによる保温が重要とされています。",
         "体育・休み時間など活動量が増える時間は、汗冷え防止のため中間着を脱いで調整できる服装が推奨されます。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     cool: {
       summary:
@@ -207,7 +194,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "国立成育医療研究センターによると、気温差に応じた重ね着は児童でも重要で、特に朝夕の寒暖差には脱ぎ着しやすい服装が適しています。",
         "風が強い日は体感温度が下がるため、薄手パーカーでの防風対策が推奨されます。"
       ],
-      references: [MEDICAL_REFERENCES.ncchd]
     },
     mild: {
       summary:
@@ -217,7 +203,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "厚生労働省は、活動量や教室環境に応じて脱ぎ着しやすい服装を推奨しています。",
         "汗をかいた場合は早めに着替え、汗冷えによる体調悪化を防いでください。"
       ],
-      references: [MEDICAL_REFERENCES.mhlw]
     },
     warm: {
       summary:
@@ -226,7 +211,6 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
       notes: [
         "熱中症対策として、帽子の着用とこまめな水分補給を心がけてください。"
       ],
-      references: [MEDICAL_REFERENCES.jpeds, MEDICAL_REFERENCES.jpa]
     },
     hot: {
       summary:
@@ -236,7 +220,148 @@ export const AGE_CLOTHES_MATRIX: AgeClothesMatrix = {
         "炎天下での長時間の運動は避け、室内や日陰での活動に切り替えることが日本小児科学会などからも推奨されています。",
         "めまい・頭痛・吐き気などが見られた場合は、速やかに涼しい場所に移動し、必要に応じて医療機関を受診してください。"
       ],
-      references: [MEDICAL_REFERENCES.jpeds, MEDICAL_REFERENCES.jpa]
     }
   }
+};
+
+// --- 一般年齢区分用の拡張マトリクス（teen/adult/senior を追加） ---
+export type ExtendedAgeClothesMatrix = Record<
+  GeneralAgeGroup,
+  Record<TemperatureCategory, AgeClothesSuggestion>
+>;
+
+const TEEN: Record<TemperatureCategory, AgeClothesSuggestion> = {
+  very_cold: {
+    summary:
+      "活動量に合わせて重ね着を調整。防風性の高いアウターで冷えを防ぎ、必要に応じて手袋や帽子を使用します。",
+    layers: [
+      "長袖インナー",
+      "トレーナー・ニット",
+      "防風・保温性の高いアウター（中綿・ダウン等）",
+      "必要に応じて手袋・ニット帽",
+    ],
+    notes: [
+      "屋外と屋内で寒暖差が大きい場合は、中間着の着脱で調整してください。",
+      "強風時は風を通しにくいアウターが有効です。",
+    ],
+  },
+  cold: {
+    summary:
+      "長袖＋中間着＋アウターの重ね着を目安に、汗冷えを避けるため活動前後で着脱しやすい構成にします。",
+    layers: ["長袖Tシャツ", "トレーナー・ニット", "防風性のあるアウター"],
+    notes: [
+      "通学時など動かない時間は保温重視、活動時は中間着の着脱で調整してください。",
+    ],
+  },
+  cool: {
+    summary:
+      "やや肌寒さを感じる日は、長袖＋軽い羽織で体温調節。前開きの薄手アウターが便利です。",
+    layers: ["長袖Tシャツ", "薄手パーカーやカーディガン"],
+    notes: ["朝夕の寒暖差に備え、脱ぎ着しやすい羽織を用意してください。"],
+  },
+  mild: {
+    summary:
+      "過ごしやすい帯では動きやすさ重視。必要に応じて薄手の羽織を追加する程度で十分です。",
+    layers: ["長袖Tシャツ", "必要に応じて薄手の羽織り"],
+    notes: ["屋内環境に合わせ、汗ばむ場合は羽織を外して調整してください。"],
+  },
+  warm: {
+    summary:
+      "暑さが気になり始める帯では通気性の良い半袖や軽いボトムス。直射日光が強い時間帯に注意。",
+    layers: ["半袖Tシャツ", "薄手のズボン・ハーフパンツ"],
+    notes: ["水分補給をこまめに行い、日陰の活用や休憩も意識してください。"],
+  },
+  hot: {
+    summary:
+      "非常に暑い環境では軽装が基本。短時間の屋外活動と休憩・水分補給を組み合わせて熱をためないように。",
+    layers: ["薄手の半袖Tシャツ", "短パン", "必要に応じて帽子"],
+    notes: ["炎天下での長時間活動は避け、涼しい場所での休息を取り入れてください。"],
+  },
+};
+
+const ADULT: Record<TemperatureCategory, AgeClothesSuggestion> = {
+  very_cold: {
+    summary:
+      "必要最小限の重ね着で保温。防風・保温性の高いアウターを軸に、室内外の移動で着脱しやすい構成を心掛けます。",
+    layers: ["長袖インナー", "トレーナー・ニット（必要に応じて）", "防風・保温性アウター"],
+    notes: ["強風や長時間の屋外滞在では、アウターでの保温を重視してください。"],
+  },
+  cold: {
+    summary:
+      "長袖＋中間着＋アウターで調整。活動量に応じて中間着の有無を変え、汗冷えを防ぎます。",
+    layers: ["長袖Tシャツ", "トレーナー・ニット", "防風性のあるアウター"],
+    notes: ["動かない時間は保温重視、移動や作業時は着脱しやすさを優先してください。"],
+  },
+  cool: {
+    summary:
+      "軽い羽織で体温調節。前開きの薄手アウターを用い、屋内外の寒暖差に対応します。",
+    layers: ["長袖Tシャツ", "薄手パーカーやカーディガン"],
+    notes: ["風が強い日は羽織で体感温度の低下に備えてください。"],
+  },
+  mild: {
+    summary:
+      "過ごしやすい帯では動きやすさ優先。必要に応じて薄手の羽織を追加する程度で十分です。",
+    layers: ["長袖Tシャツ", "必要に応じて薄手の羽織り"],
+    notes: ["屋内環境に合わせ、汗ばむ場合は羽織を外して調整してください。"],
+  },
+  warm: {
+    summary:
+      "通気性の良い半袖や軽いボトムスを選択。直射日光・熱のこもりに注意して行動してください。",
+    layers: ["半袖Tシャツ", "薄手のズボン・ハーフパンツ"],
+    notes: ["こまめな水分補給と休憩を取り入れてください。"],
+  },
+  hot: {
+    summary:
+      "非常に暑い環境では軽装が基本。屋外活動は短時間に留め、涼しい環境を適宜確保してください。",
+    layers: ["薄手の半袖Tシャツ", "短パン", "必要に応じて帽子"],
+    notes: ["熱がこもりやすい環境では休憩を増やし、無理をしないでください。"],
+  },
+};
+
+const SENIOR: Record<TemperatureCategory, AgeClothesSuggestion> = {
+  very_cold: {
+    summary:
+      "保温と可動性のバランスを重視。前開きで着脱しやすいアウターを用い、冷えに備えます。",
+    layers: ["長袖インナー", "トレーナー・ニット", "保温性の高いアウター"],
+    notes: ["外出時は路面状況や風に注意し、必要に応じて休憩を取り入れてください。"],
+  },
+  cold: {
+    summary:
+      "長袖＋中間着＋アウターで調整。屋内では中間着を外して過ごしやすさを優先します。",
+    layers: ["長袖Tシャツ", "トレーナー・ニット", "防風性のあるアウター"],
+    notes: ["強風時は体感温度が下がるため、前開きアウターで調整しやすくしてください。"],
+  },
+  cool: {
+    summary:
+      "軽い羽織で体温調節。薄手パーカーやカーディガンで、屋内外の移動時に対応しやすくします。",
+    layers: ["長袖Tシャツ", "薄手パーカーやカーディガン"],
+    notes: ["可動性を損なわない軽い羽織を選び、必要に応じて休憩も取り入れてください。"],
+  },
+  mild: {
+    summary:
+      "過ごしやすい帯では動きやすさ優先。薄手の羽織を用意して寒暖差に備えます。",
+    layers: ["長袖Tシャツ", "必要に応じて薄手の羽織り"],
+    notes: ["屋内環境や体調に合わせ、無理なく着脱できる構成にしてください。"],
+  },
+  warm: {
+    summary:
+      "通気性の良い半袖や軽いボトムスで熱のこもりを避けます。直射日光の強い時間帯は屋外活動を控えめに。",
+    layers: ["半袖Tシャツ", "薄手のズボン・ハーフパンツ"],
+    notes: ["こまめな水分補給と休憩を心がけ、体調の変化に注意してください。"],
+  },
+  hot: {
+    summary:
+      "非常に暑い環境では軽装で過ごし、屋外活動は短時間に。涼しい場所への移動や休憩を増やします。",
+    layers: ["薄手の半袖Tシャツ", "短パン", "必要に応じて帽子"],
+    notes: ["熱中が見られる場合は速やかに涼しい場所へ移動し、休憩を取り入れてください。"],
+  },
+};
+
+export const GENERAL_AGE_CLOTHES_MATRIX: ExtendedAgeClothesMatrix = {
+  infant: AGE_CLOTHES_MATRIX.infant,
+  toddler: AGE_CLOTHES_MATRIX.toddler,
+  child: AGE_CLOTHES_MATRIX.child,
+  teen: TEEN,
+  adult: ADULT,
+  senior: SENIOR,
 };

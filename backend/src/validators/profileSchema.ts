@@ -10,12 +10,11 @@ const FamilyMemberSchema = z.object({
 
 // プロフィール保存用スキーマ（API側で userId を生成／座標を直接受け付ける）
 export const SaveProfileSchema = z.object({
-  lat: z.number(),
-  lon: z.number(),
+  region: z.string().min(1).max(100),
   birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(["male", "female", "other"]),
   notificationsEnabled: z.boolean(),
-  nickname: z.string().min(1).max(30).optional(),
+  nickname: z.string().min(1).max(30),
   family: z.array(FamilyMemberSchema).max(10).optional()
 });
 

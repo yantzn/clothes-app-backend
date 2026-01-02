@@ -233,8 +233,7 @@ const getProfileController = async (
 
     const responseBody = {
       userId: user.userId,
-      lat: user.lat,
-      lon: user.lon,
+      region: user.region,
       birthday: user.birthday,
       gender: user.gender,
       notificationsEnabled: user.notificationsEnabled,
