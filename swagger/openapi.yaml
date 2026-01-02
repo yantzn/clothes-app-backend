@@ -373,22 +373,31 @@ paths:
                         suggestion:
                           summary: "半袖＋薄手羽織で快適（たろう向け）"
                           layers: ["半袖Tシャツ", "薄手パーカー", "動きやすいパンツ"]
+                          layersDetailed:
+                            - { slot: "top_base", category: "tee_short", displayName: "半袖Tシャツ" }
+                            - { slot: "outerwear", category: "hoodie", displayName: "薄手パーカー" }
+                            - { slot: "bottom", category: "pants", displayName: "動きやすいパンツ" }
                           notes: []
-                          references: []
                       - name: "パパ"
                         ageGroup: "adult"
                         suggestion:
                           summary: "長袖＋軽めの羽織"
                           layers: ["長袖Tシャツ", "薄手パーカー", "パンツ"]
+                          layersDetailed:
+                            - { slot: "top_base", category: "tee_long", displayName: "長袖Tシャツ" }
+                            - { slot: "outerwear", category: "hoodie", displayName: "薄手パーカー" }
+                            - { slot: "bottom", category: "pants", displayName: "パンツ" }
                           notes: []
-                          references: []
                       - name: "娘"
                         ageGroup: "toddler"
                         suggestion:
                           summary: "長袖＋羽織で体温調節"
                           layers: ["長袖Tシャツ", "カーディガン", "やわらかいパンツ"]
+                          layersDetailed:
+                            - { slot: "top_base", category: "tee_long", displayName: "長袖Tシャツ" }
+                            - { slot: "midlayer", category: "cardigan", displayName: "カーディガン" }
+                            - { slot: "bottom", category: "pants", displayName: "やわらかいパンツ" }
                           notes: []
-                          references: []
         "400":
           description: Validation error
           content:
@@ -537,10 +546,51 @@ components:
           type: array
           items:
             type: string
+        layersDetailed:
+          type: array
+          description: 服装レイヤーの詳細（任意）
+          items:
+            $ref: '#/components/schemas/LayerSpec'
         notes:
           type: array
           items:
             type: string
+    LayerAttributes:
+      type: object
+      properties:
+        warmthLevel:
+          type: integer
+          description: 1-5 の目安
+        windproof:
+          type: boolean
+        waterproof:
+          type: boolean
+        breathability:
+          type: integer
+          description: 1-5 の目安
+        materials:
+          type: array
+          items:
+            type: string
+        fit:
+          type: string
+          enum: [regular, loose, snug]
+        kidSafe:
+          type: boolean
+    LayerSpec:
+      type: object
+      required: [slot, category, displayName]
+      properties:
+        slot:
+          type: string
+          enum: [top_base, midlayer, outerwear, bottom, legwear, footwear, headwear, handwear, accessory]
+        category:
+          type: string
+          enum: [tee_short, tee_long, shirt, sweater, cardigan, hoodie, thermal, jacket_windproof, coat_down, coat_fleece, rain_jacket, pants, shorts, skirt, leggings, socks, hat, gloves, scarf, onesie]
+        displayName:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/LayerAttributes'
     ClothesSuggestion:
       type: object
       required: [userId, ageGroup, temperature, suggestion]

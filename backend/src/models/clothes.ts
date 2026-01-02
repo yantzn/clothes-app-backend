@@ -1,6 +1,8 @@
 // src/models/clothes.ts
 
 import type { TemperatureCategory } from "./temperature";
+import type { LayerSpec } from "../types/wardrobe";
+import { mapToLayerSpec } from "../rules/layerMapping";
 
 /**
  * 年齢区分
@@ -25,6 +27,11 @@ export interface AgeClothesSuggestion {
   layers: string[];
 
   /**
+   * 将来のコーデ掲載や検索連携に備えた詳細レイヤー
+   */
+  layersDetailed?: LayerSpec[];
+
+  /**
    * 注意点・医学的な観点からのコメント
    */
   notes: string[];
@@ -38,3 +45,14 @@ export type AgeClothesMatrix = Record<
   AgeGroup,
   Record<TemperatureCategory, AgeClothesSuggestion>
 >;
+
+/**
+ * 既存の文字列レイヤーから詳細レイヤー情報を付与するユーティリティ。
+ * - MVP互換のまま `layersDetailed` を生成する
+ */
+export const withDetailedLayers = (
+  suggestion: AgeClothesSuggestion
+): AgeClothesSuggestion => {
+  const detailed: LayerSpec[] = suggestion.layers.map((l) => mapToLayerSpec(l));
+  return { ...suggestion, layersDetailed: detailed };
+};

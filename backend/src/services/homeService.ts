@@ -7,6 +7,7 @@ import type { UserProfile } from "../models/profile";
 import { DynamoUserProfileRepository } from "../repositories/dynamoUserProfileRepository";
 import { calculateAge, ageGroup as generalAgeGroup } from "../lib/age";
 import { getTodayMessage } from "./todayMessageService";
+import { mapToLayerSpec } from "../rules/layerMapping";
 
 const repo = new DynamoUserProfileRepository();
 
@@ -48,6 +49,7 @@ export const getHomeToday = async (userId: string): Promise<HomeTodayResult> => 
       suggestion: {
         summary: userSuggestion.summary,
         layers: userSuggestion.layers,
+        layersDetailed: userSuggestion.layers.map((l) => mapToLayerSpec(l)),
         notes: userSuggestion.notes
       }
     }
@@ -64,6 +66,7 @@ export const getHomeToday = async (userId: string): Promise<HomeTodayResult> => 
       suggestion: {
         summary: famSuggestion.summary,
         layers: famSuggestion.layers,
+        layersDetailed: famSuggestion.layers.map((l) => mapToLayerSpec(l)),
         notes: famSuggestion.notes
       }
     });

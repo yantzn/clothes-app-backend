@@ -1,12 +1,16 @@
 // 表示用の一般年齢区分（lib/age.ts の ageGroup に合わせる）
 export type GeneralAgeGroup = "infant" | "toddler" | "child" | "teen" | "adult" | "senior";
 
+import type { LayerSpec } from "./wardrobe";
+
 export interface HomeMemberCard {
   name: string;
   ageGroup: GeneralAgeGroup;
   suggestion: {
     summary: string;
     layers: string[];
+    /** 詳細レイヤー情報（任意） */
+    layersDetailed?: LayerSpec[];
     notes: string[];
   };
   illustrationUrl?: string;
