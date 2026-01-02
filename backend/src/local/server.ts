@@ -5,7 +5,7 @@ import { loggerMiddleware } from "../middleware/loggerMiddleware";
 import { errorMiddleware } from "../middleware/errorMiddleware";
 
 import profileRoutes from "../routes/profileRoutes";
-// removed legacy /weather, /clothes routes
+import weatherRoutes from "../routes/weatherRoutes";
 import homeRoutes from "../routes/homeRoutes";
 
 // 全TSのホットリロード用（tsx watch）
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/profile", profileRoutes);
-// removed legacy /weather, /clothes routes
+app.use("/api/weather", weatherRoutes);
 app.use("/api/home", homeRoutes);
 
 // 共通エラーハンドラ

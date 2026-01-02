@@ -10,6 +10,7 @@ paths:
   /profile:
     post:
       summary: Save user profile
+      description: プロフィールの新規作成。サーバ側で `userId` を生成します。
       requestBody:
         required: true
         content:
@@ -74,9 +75,6 @@ paths:
                   value:
                     error: "Invalid request"
                     details:
-                      lat:
-                        - code: "invalid_type"
-                          message: "Expected number"
                       birthday:
                         - code: "invalid_format"
                           message: "Expected YYYY-MM-DD"
@@ -422,6 +420,66 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /weather/hourly/{userId}:
+    get:
+      summary: Get 3-hourly forecast (free plan)
+      description: 無料版の前提で、ユーザーIDから地域を取得し3時間刻みの予報を返します。`limitHours` クエリで返却時間数を指定可能（3時間ステップで切り上げ）。
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HourlyWeatherResponse'
+              examples:
+                success:
+                  value:
+                    region: "東京"
+                    intervalHours: 3
+                    hourly:
+                      - timestamp: 1735795200
+                        temperatureCelsius: 6.2
+                        feelsLikeCelsius: 4.9
+                        humidity: 72
+                        windSpeed: 2.1
+                        condition: "cloudy"
+                      - timestamp: 1735798800
+                        temperatureCelsius: 6.0
+                        feelsLikeCelsius: 4.7
+                        humidity: 74
+                        windSpeed: 2.0
+                        condition: "cloudy"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation:
+                  value:
+                    error: "Invalid request"
+                    details:
+                      userId:
+                        - code: "required"
+                          message: "Required path parameter"
+                      limitHours:
+                        - code: "out_of_range"
+                          message: "Must be between 1 and 48"
+        "500":
+          description: Internal Server Error — 接続エラーや想定外のエラー時
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
 components:
   schemas:
     TodayWeather:
@@ -483,11 +541,6 @@ components:
           type: array
           items:
             type: string
-        references:
-          type: array
-          items:
-            type: string
-            format: uri
     ClothesSuggestion:
       type: object
       required: [userId, ageGroup, temperature, suggestion]
@@ -535,6 +588,38 @@ components:
           description: 本日の服装カード一覧（ユーザー＋家族）
           items:
             $ref: '#/components/schemas/MemberClothesCard'
+    HourlyWeatherItem:
+      type: object
+      required: [timestamp, temperatureCelsius, feelsLikeCelsius, humidity, windSpeed, condition]
+      properties:
+        timestamp:
+          type: integer
+          description: UNIX時刻（秒）
+        temperatureCelsius:
+          type: number
+        feelsLikeCelsius:
+          type: number
+        humidity:
+          type: integer
+        windSpeed:
+          type: number
+        condition:
+          type: string
+          description: 天気説明
+    HourlyWeatherResponse:
+      type: object
+      required: [region, intervalHours, hourly]
+      properties:
+        region:
+          type: string
+        intervalHours:
+          type: integer
+          description: 返却データの時間間隔（無料版は常に3）
+          enum: [3]
+        hourly:
+          type: array
+          items:
+            $ref: '#/components/schemas/HourlyWeatherItem'
     ErrorResponse:
       type: object
       required: [error]

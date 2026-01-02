@@ -11,3 +11,8 @@ export const getLatLon = (region: string) => {
 export const getWeather = (lat: number, lon: number) => {
   return client.getWeather(lat, lon);
 };
+
+// 1時間ごとの天気を取得する
+export const getHourlyWeather = (lat: number, lon: number) => {
+  return client.getHourlyWeather(lat, lon);
+};
