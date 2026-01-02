@@ -27,7 +27,8 @@ export const getHomeToday = async (userId: string): Promise<HomeTodayResult> => 
   const feelsLike = (weatherRaw.main?.feels_like ?? temp) as number;
   const humidity = weatherRaw.main?.humidity as number;
   const windSpeed = weatherRaw.wind?.speed as number;
-  const region = (weatherRaw.name as string);
+  // 表示はユーザ入力の地域文字列を優先（日本語表記を維持）
+  const region = profile.region;
   const conditionSource = Array.isArray(weatherRaw.weather) && weatherRaw.weather[0]?.main
     ? String(weatherRaw.weather[0].main)
     : "";
