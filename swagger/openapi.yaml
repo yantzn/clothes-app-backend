@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Clothing Recommendation API
   version: 1.0.0
@@ -138,8 +138,7 @@ paths:
                 success:
                   value:
                     userId: 123e4567-e89b-12d3-a456-426614174000
-                    lat: 35.6940
-                    lon: 139.7530
+                    region: "東京"
                     birthday: "2020-04-12"
                     gender: "other"
                     notificationsEnabled: true
@@ -439,6 +438,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: limitHours
+          in: query
+          required: false
+          description: 返却する時間数（3時間ステップで切り上げ）。許容範囲は1〜48。
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 48
       responses:
         "200":
           description: ok
