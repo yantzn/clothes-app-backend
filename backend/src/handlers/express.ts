@@ -3,6 +3,15 @@
 // Expressアプリ(createApp)へイベント/コンテキストをブリッジします。
 import serverlessExpress from "@vendia/serverless-express";
 import { createApp } from "../app";
+import { initSecrets } from "../config/secretsBootstrap";
 
-const app = createApp();
-export const handler = serverlessExpress({ app });
+let server: any;
+
+export const handler = async (event: any, context: any): Promise<unknown> => {
+	if (!server) {
+		await initSecrets();
+		const app = createApp();
+		server = serverlessExpress({ app });
+	}
+	return server(event, context);
+};

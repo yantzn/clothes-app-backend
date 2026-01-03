@@ -1,18 +1,23 @@
 import dotenv from "dotenv";
+
+// .env を読み込む
 dotenv.config();
 
-// 必須キーの存在チェック関数
-const requireEnv = (key: string): string => {
-  const value = process.env[key];
-  if (value === undefined || value === "") {
-    throw new Error(`Environment variable "${key}" is required but missing.`);
-  }
-  return value;
-};
-
-// ENV オブジェクト（型付き）
+// ランタイム値を常に最新の process.env から取得するラッパ
 export const ENV = {
-  region: requireEnv("AWS_REGION"),
-  openWeatherKey: requireEnv("OPENWEATHER_API_KEY"),
-  isLocal: process.env.IS_LOCAL === "true"
+  get region(): string {
+    return process.env.AWS_REGION ?? "ap-northeast-1";
+  },
+  get openWeatherKey(): string {
+    return process.env.OPENWEATHER_API_KEY ?? "";
+  },
+  get isLocal(): boolean {
+    return process.env.IS_LOCAL === "true";
+  },
+  get secretsTtlMs(): number {
+    const minutesStr = process.env.SECRETS_TTL_MINUTES;
+    const minutes = minutesStr ? Number(minutesStr) : 60;
+    const valid = Number.isFinite(minutes) && minutes > 0 ? minutes : 60;
+    return valid * 60 * 1000;
+  }
 };

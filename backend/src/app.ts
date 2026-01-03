@@ -6,10 +6,11 @@ import profileRoutes from "./routes/profileRoutes";
 import weatherRoutes from "./routes/weatherRoutes";
 import homeRoutes from "./routes/homeRoutes";
 
-import "./services/profileService";
+// 依存の初期化順序に注意：ENV を先にロードし、その後インフラ層を初期化
+import "./config/env";
 import "./lib/dynamo";
 import "./lib/openweather";
-import "./config/env";
+import "./services/profileService";
 
 export const createApp = () => {
   const app = express();
