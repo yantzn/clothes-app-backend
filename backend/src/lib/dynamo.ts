@@ -8,9 +8,9 @@ import { ENV } from "../config/env";
  * - ローカル環境では DynamoDB Local に接続
  * - AWS SDK v3 を使用（@aws-sdk/client-dynamodb + @aws-sdk/lib-dynamodb）
  *
- * ベストプラクティス:
- * - Repository 層でこの ddb を利用し、条件式付き Put/Update を実施
- * - サービス層は Repository 経由で永続化を行い、直接このクライアントを扱わない
+ * 運用補足（AWSデプロイ時の疎通/認証）:
+ * - 正しい接続先: ENV.isLocal !== "true" の場合、`endpoint` は未設定となり、
+ *   AWS SDK v3 が `ENV.region`（例: ap-northeast-1）の公式 DynamoDB エンドポイントへ自動接続します。
  */
 const client = new DynamoDBClient({
   region: ENV.region,

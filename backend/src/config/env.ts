@@ -19,5 +19,8 @@ export const ENV = {
     const minutes = minutesStr ? Number(minutesStr) : 60;
     const valid = Number.isFinite(minutes) && minutes > 0 ? minutes : 60;
     return valid * 60 * 1000;
+  },
+  get userProfileTableName(): string {
+    return process.env.DYNAMO_TABLE_NAME ?? "UserProfile";
   }
 };

@@ -1,9 +1,10 @@
 import { ddb } from "../lib/dynamo";
+import { ENV } from "../config/env";
 import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import type { UserProfile } from "../models/profile";
 import type { UserProfileRepository } from "./userProfileRepository";
 
-const TABLE_NAME = "UserProfile";
+const TABLE_NAME = ENV.userProfileTableName;
 
 export class DynamoUserProfileRepository implements UserProfileRepository {
   async put(profile: UserProfile): Promise<void> {
