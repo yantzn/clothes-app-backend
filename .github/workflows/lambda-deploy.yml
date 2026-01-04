@@ -47,20 +47,17 @@ jobs:
           npm run build
         # ビルド（tsc）に devDependencies が必須のため、ここでは省略しません。
 
-      - name: "Prepare Lambda artifact (ESM: include package.json at root)"
+      - name: "Prepare Lambda artifact (ESM bundle: no node_modules)"
         working-directory: backend
         run: |
-          # 本番用にdevDependenciesを削減
-          npm prune --production
           mkdir -p bundle
           cp package.json bundle/
           cp -r dist bundle/dist
-          cp -r node_modules bundle/node_modules
           cd bundle
-          # ZIP ルートに package.json / dist / node_modules を配置
+          # ZIP ルートに package.json / dist（esbuild バンドル済み）を配置
           zip -r ../bundle.zip .
         # 重要: ESM 認識のため ZIP ルートに package.json（type: "module"）を含めます。
-        # node_modules は本番依存のみ（prune --production 済み）。
+        # esbuild で依存をバンドルするため node_modules の同梱は不要です。
 
       - name: Validate S3 bucket env
         run: |
@@ -75,7 +72,7 @@ jobs:
       - name: Inspect bundle (sanity)
         run: |
           unzip -l backend/bundle.zip | sed -n '1,200p'
-        # ZIP に package.json / dist / node_modules が含まれているか簡易検査します。
+        # ZIP に package.json / dist/handlers/express.js が含まれているか簡易検査します。
 
       - name: Upload artifact to S3
         run: |

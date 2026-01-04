@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noEmit && node ./scripts/build-esbuild.mjs",
     "dev": "tsx watch ./src/local/server.ts"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@types/express": "^5.0.5",
     "@types/node": "^20.12.5",
     "@types/pino": "^7.0.4",
+    "esbuild": "^0.21.5",
     "tsx": "^4.20.6",
     "typescript": "^5.6.3"
   }
