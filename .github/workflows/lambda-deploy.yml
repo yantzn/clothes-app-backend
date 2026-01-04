@@ -1,0 +1,82 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC用
+  contents: read
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+  LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+  S3_BUCKET: ${{ secrets.S3_BUCKET }} # 任意（大きいZIP対策）
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install production deps and build
+        working-directory: backend
+        run: |
+          npm ci --omit=dev
+          npm run build
+
+      - name: "Prepare Lambda artifact (ESM: include package.json at root)"
+        working-directory: backend
+        run: |
+          mkdir -p bundle
+          cp package.json bundle/
+          cp -r dist bundle/dist
+          cp -r node_modules bundle/node_modules
+          cd bundle
+          # ZIP ルートに package.json / dist / node_modules を配置
+          zip -r ../bundle.zip .
+
+      - name: Validate S3 bucket env
+        run: |
+          if [ -z "${{ env.S3_BUCKET }}" ]; then echo "S3_BUCKET is required" && exit 1; fi
+
+      - name: Set artifact key
+        run: |
+          echo "ARTIFACT_KEY=lambda/clothes-app-backend/${{ env.LAMBDA_FUNCTION_NAME }}/${{ github.sha }}.zip" >> $GITHUB_ENV
+
+      - name: Inspect bundle (sanity)
+        run: |
+          unzip -l backend/bundle.zip | sed -n '1,200p'
+
+      - name: Upload artifact to S3
+        run: |
+          aws s3 cp backend/bundle.zip s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_KEY }}
+
+      - name: Update Lambda code from S3
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --s3-bucket ${{ env.S3_BUCKET }} \
+            --s3-key ${{ env.ARTIFACT_KEY }}
+
+      - name: Ensure handler/runtime configuration (idempotent)
+        run: |
+          aws lambda update-function-configuration \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --runtime nodejs22.x \
+            --handler dist/handlers/express.handler
