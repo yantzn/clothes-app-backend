@@ -34,15 +34,18 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install production deps and build
+      - name: Install all deps and build
         working-directory: backend
         run: |
-          npm ci --omit=dev
+          # 型定義(@types/*)やTypeScriptはdevDependenciesのため、ビルド時は全てインストール
+          npm ci
           npm run build
 
       - name: "Prepare Lambda artifact (ESM: include package.json at root)"
         working-directory: backend
         run: |
+          # 本番用にdevDependenciesを削減
+          npm prune --production
           mkdir -p bundle
           cp package.json bundle/
           cp -r dist bundle/dist
