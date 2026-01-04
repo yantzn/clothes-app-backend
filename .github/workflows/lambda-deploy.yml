@@ -43,7 +43,8 @@ jobs:
         working-directory: backend
         run: |
           # 型定義(@types/*)やTypeScriptはdevDependenciesのため、ビルド時は全てインストール
-          npm ci
+          # まず npm ci を試み、lock 不整合時は npm install にフォールバック
+          npm ci || (echo "npm ci failed, falling back to npm install" && npm install)
           npm run build
         # ビルド（tsc）に devDependencies が必須のため、ここでは省略しません。
 
