@@ -1,4 +1,6 @@
 name: Deploy Lambda
+# GitHub Actions から OIDC で AWS に認証し、
+# backend をビルド → ZIP を S3 にアップロード → Lambda を S3 から更新します。
 
 on:
   push:
@@ -13,7 +15,8 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
   LAMBDA_FUNCTION_NAME: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-  S3_BUCKET: ${{ secrets.S3_BUCKET }} # 任意（大きいZIP対策）
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
+  # 注意: Secrets はリポジトリ Settings → Secrets and variables → Actions に設定します。
 
 jobs:
   deploy:
@@ -27,12 +30,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          # Lambda のランタイム（nodejs22.x）と合わせることで互換性を担保します。
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+        # GitHub OIDC トークンで指定ロールを Assume し、短期認証を取得します。
 
       - name: Install all deps and build
         working-directory: backend
@@ -40,6 +45,7 @@ jobs:
           # 型定義(@types/*)やTypeScriptはdevDependenciesのため、ビルド時は全てインストール
           npm ci
           npm run build
+        # ビルド（tsc）に devDependencies が必須のため、ここでは省略しません。
 
       - name: "Prepare Lambda artifact (ESM: include package.json at root)"
         working-directory: backend
@@ -53,22 +59,28 @@ jobs:
           cd bundle
           # ZIP ルートに package.json / dist / node_modules を配置
           zip -r ../bundle.zip .
+        # 重要: ESM 認識のため ZIP ルートに package.json（type: "module"）を含めます。
+        # node_modules は本番依存のみ（prune --production 済み）。
 
       - name: Validate S3 bucket env
         run: |
           if [ -z "${{ env.S3_BUCKET }}" ]; then echo "S3_BUCKET is required" && exit 1; fi
+        # このワークフローは S3 経由デプロイ専用です。未設定なら失敗させます。
 
       - name: Set artifact key
         run: |
           echo "ARTIFACT_KEY=lambda/clothes-app-backend/${{ env.LAMBDA_FUNCTION_NAME }}/${{ github.sha }}.zip" >> $GITHUB_ENV
+        # 関数名/コミットSHAでキーを構成し、バージョン管理とロールバックを容易にします。
 
       - name: Inspect bundle (sanity)
         run: |
           unzip -l backend/bundle.zip | sed -n '1,200p'
+        # ZIP に package.json / dist / node_modules が含まれているか簡易検査します。
 
       - name: Upload artifact to S3
         run: |
           aws s3 cp backend/bundle.zip s3://${{ env.S3_BUCKET }}/${{ env.ARTIFACT_KEY }}
+        # OIDC ロールには対象バケットへの PutObject/GetObject 権限が必要です。
 
       - name: Update Lambda code from S3
         run: |
@@ -76,6 +88,13 @@ jobs:
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
             --s3-bucket ${{ env.S3_BUCKET }} \
             --s3-key ${{ env.ARTIFACT_KEY }}
+        # Lambda のコードを S3 アーティファクトから更新します（非同期に適用されます）。
+
+      - name: Wait for Lambda code update to complete
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+        # 直後の設定更新で競合しないよう、完了まで待機します（ResourceConflictException対策）。
 
       - name: Ensure handler/runtime configuration (idempotent)
         run: |
@@ -83,3 +102,4 @@ jobs:
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
             --runtime nodejs22.x \
             --handler dist/handlers/express.handler
+        # 念のためランタイム/ハンドラーを明示し、設定のズレを防ぎます。
