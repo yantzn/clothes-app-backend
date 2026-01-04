@@ -7,10 +7,11 @@ servers:
   - url: http://localhost:3000  # 後でAPI Gatewayローカルやモックに合わせる
 
 paths:
-  /profile:
+  /api/profile:
     post:
       summary: Save user profile
       description: プロフィールの新規作成。サーバ側で `userId` を生成します。
+      tags: [Profile]
       requestBody:
         required: true
         content:
@@ -87,9 +88,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /profile/{userId}:
+  /api/profile/{userId}:
     get:
       summary: Get user profile
+      tags: [Profile]
       parameters:
         - name: userId
           in: path
@@ -180,6 +182,7 @@ paths:
     patch:
       summary: Update user profile (partial)
       description: Send only fields you want to change. Unspecified fields remain unchanged. At least one field must be provided.
+      tags: [Profile]
       parameters:
         - name: userId
           in: path
@@ -257,6 +260,7 @@ paths:
     put:
       summary: Replace family information
       description: Replace the family list for a profile. Entire list is replaced. If `family` is an empty array, the profile will be treated as having no family information (the `family` attribute is removed).
+      tags: [Profile]
       parameters:
         - name: userId
           in: path
@@ -337,10 +341,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /home/{userId}:
+  /api/home/{userId}:
     get:
       summary: Get today's combined home data
       description: ホーム画面用の統合API。天気情報、今日のひとこと、本日の服装を一括で返す。
+      tags: [Home]
       parameters:
         - name: userId
           in: path
@@ -428,10 +433,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /weather/hourly/{userId}:
+  /api/weather/hourly/{userId}:
     get:
       summary: Get 3-hourly forecast (free plan)
       description: 無料版の前提で、ユーザーIDから地域を取得し3時間刻みの予報を返します。`limitHours` クエリで返却時間数を指定可能（3時間ステップで切り上げ）。
+      tags: [Weather]
       parameters:
         - name: userId
           in: path
