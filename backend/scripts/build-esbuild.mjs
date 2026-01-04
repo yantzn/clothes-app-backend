@@ -31,6 +31,11 @@ await esbuild.build({
   minify: true,
   // 余分なライセンスコメントを出力に残さない
   legalComments: "none",
+  // ESM でも require() を使う依存がある場合に備え、Node の createRequire でシムを注入
+  // これにより "Dynamic require of 'util' is not supported" を回避
+  banner: {
+    js: "import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url);"
+  }
 });
 
 console.log("esbuild: bundled handler to dist/handlers/express.js");
