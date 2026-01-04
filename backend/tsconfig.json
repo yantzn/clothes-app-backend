@@ -1,5 +1,5 @@
 {
-  // === TypeScript コンパイル設定 ===
+  // === TypeScript コンパイル設定（ESM + Node.js 22）===
   "compilerOptions": {
 
     // --- 実行環境（Node.js 22）の対応バージョン ---
@@ -11,13 +11,16 @@
     "module": "ES2022",
 
     // --- モジュール解決ロジック ---
-    // TS6〜TS7 の最新推奨は "bundler"
-    // Node.js の ESM 仕様に完全対応し、今後 deprecated にならない
+    // "bundler": ESM/URL 参照や最新のパッケージ解決に対応。
+    // Node.js 22 の ESM 実行（tsx など）と相性が良い設定。
     "moduleResolution": "bundler",
 
-    // --- 出力ディレクトリ ---
-    // Lambda にデプロイする dist 配下に JS を出力
+    // --- 出力ディレクトリ / ルート ---
+    // outDir: Lambda にデプロイする dist 配下に JS を出力
     "outDir": "./dist",
+    "rootDir": "./src",
+    // rootDir: src 配下のみをコンパイル対象にし、出力時に src サブパスを剥がして dist 直下へ配置
+    // 例: src/app.ts → dist/app.js, src/handlers/express.ts → dist/handlers/express.js
 
     // --- import/export をより柔軟に扱えるようにする ---
     "esModuleInterop": true,
@@ -28,7 +31,9 @@
     // --- ソースマップ出力（ローカルデバッグ用） ---
     "sourceMap": true,
 
-     // TSX や .js 拡張子を import で使いたいなら false に
+     // TypeScript 拡張子（.ts/.tsx）付き import を許可するか。
+     // 本プロジェクトは ESM の方針として「拡張子なしの相対 import」を採用するため false。
+     // （ランタイムでは .js に解決される）
     "allowImportingTsExtensions": false
   },
 
