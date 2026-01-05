@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const FamilyMemberSchema = z.object({
   name: z.string().min(1).max(100),
-  birthday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  birthday: z.string().regex(/^\d{4}\/\d{2}\/\d{2}$/),
   gender: z.enum(["male", "female", "other"])
 });
 
