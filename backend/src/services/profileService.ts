@@ -2,7 +2,6 @@ import { DynamoUserProfileRepository } from "../repositories/dynamoUserProfileRe
 import type { UserProfile } from "../models/profile";
 import type { SaveProfileInput } from "../validators/profileSchema";
 import type { UpdateProfileChanges, UpdateProfileInput } from "../validators/profileUpdateSchema";
-import type { FamilyMemberInput } from "../validators/profileFamilySchema";
 import { getLatLon } from "../lib/openweather";
 
 /**
@@ -67,21 +66,8 @@ export const updateProfileData = async (userId: string, changes: UpdateProfileCh
     gender: changes.gender,
     notificationsEnabled: changes.notificationsEnabled,
     nickname: changes.nickname,
+    family: (changes as any).family,
   });
 };
 
-/**
- * 家族情報を全置換する（PUT）
- * - 入力の配列をそのまま `family` 属性へ保存
- */
-export const replaceProfileFamily = async (
-  userId: string,
-  family: FamilyMemberInput[]
-): Promise<void> => {
-  if (family.length === 0) {
-    // 空配列は家族情報なしとして属性削除
-    await repo.removeFamily(userId);
-  } else {
-    await repo.update(userId, { family });
-  }
-};
+// 家族情報の更新は PATCH に統合済み
